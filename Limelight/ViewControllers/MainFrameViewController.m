@@ -23,6 +23,7 @@
 #import "ServerInfoResponse.h"
 #import "StreamFrameViewController.h"
 #import "LoadingFrameViewController.h"
+#import "ControlSettingViewController.h"
 #import "ComputerScrollView.h"
 #import "TemporaryApp.h"
 #import "IdManager.h"
@@ -616,6 +617,12 @@ static NSMutableSet* hostList;
     [self enableNavigation];
 }
 
+- (void) ShowControlSetting {
+    ControlSettingViewController* controlSetting = [self.storyboard instantiateViewControllerWithIdentifier:@"controlSetting"];
+    
+    [self.navigationController presentViewController:controlSetting animated:NO completion:nil];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -742,6 +749,8 @@ static NSMutableSet* hostList;
     // view, so we won't get a return to active notification
     // for that which would normally fire beginForegroundRefresh.
     [self beginForegroundRefresh];
+    
+    //[self ShowControlSetting];
 }
 
 - (void)viewDidDisappear:(BOOL)animated

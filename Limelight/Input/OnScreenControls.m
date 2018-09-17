@@ -85,7 +85,7 @@ static const float D_PAD_DIST = 10;
 static float D_PAD_CENTER_X;
 static float D_PAD_CENTER_Y;
 
-static const float DEAD_ZONE_PADDING = 15;
+static const float DEAD_ZONE_PADDING = 1;
 
 static const double STICK_CLICK_RATE = 100;
 static const float STICK_DEAD_ZONE = .1;
@@ -114,6 +114,9 @@ static float L2_X;
 static float L2_Y;
 static float L3_X;
 static float L3_Y;
+
+static float opacity = 0.3f;
+static float stickOpacity = 0.2f;
 
 - (id) initWithView:(UIView*)view controllerSup:(ControllerSupport*)controllerSupport swipeDelegate:(id<EdgeDetectionDelegate>)swipeDelegate {
     self = [self init];
@@ -158,6 +161,23 @@ static float L3_Y;
     _leftStick = [CALayer layer];
     _rightStick = [CALayer layer];
     _edge = [CALayer layer];
+    
+    _aButton.opacity = opacity;
+    _bButton.opacity = opacity;
+    _xButton.opacity = opacity;
+    _yButton.opacity = opacity;
+    _upButton.opacity = opacity;
+    _downButton.opacity = opacity;
+    _leftButton.opacity = opacity;
+    _rightButton.opacity = opacity;
+    _l1Button.opacity = opacity;
+    _l2Button.opacity = opacity;
+    _r1Button.opacity = opacity;
+    _r2Button.opacity = opacity;
+    _startButton.opacity = opacity;
+    _selectButton.opacity = opacity;
+    _leftStick.opacity = stickOpacity;
+    _rightStick.opacity = stickOpacity;
     
     [self setupEdgeDetection];
     
@@ -311,10 +331,10 @@ static float L3_Y;
 
 - (void) setupComplexControls
 {
-    D_PAD_CENTER_X = _controlArea.size.width * .1 + _controlArea.origin.x;
-    D_PAD_CENTER_Y = _controlArea.size.height * .60 + _controlArea.origin.y;
-    BUTTON_CENTER_X = _controlArea.size.width * .9 + _controlArea.origin.x;
-    BUTTON_CENTER_Y = _controlArea.size.height * .60 + _controlArea.origin.y;
+    D_PAD_CENTER_X = _controlArea.size.width * .09 + _controlArea.origin.x;
+    D_PAD_CENTER_Y = _controlArea.size.height * .45 + _controlArea.origin.y;
+    BUTTON_CENTER_X = _controlArea.size.width * .91 + _controlArea.origin.x;
+    BUTTON_CENTER_Y = _controlArea.size.height * .45 + _controlArea.origin.y;
     
     if (_iPad)
     {
@@ -326,21 +346,21 @@ static float L3_Y;
     }
     else
     {
-        LS_CENTER_X = _controlArea.size.width * .35 + _controlArea.origin.x;
-        LS_CENTER_Y = _controlArea.size.height * .75 + _controlArea.origin.y;
-        RS_CENTER_X = _controlArea.size.width * .65 + _controlArea.origin.x;
-        RS_CENTER_Y = _controlArea.size.height * .75 + _controlArea.origin.y;
+        LS_CENTER_X = _controlArea.size.width * .09 + _controlArea.origin.x;
+        LS_CENTER_Y = _controlArea.size.height * .8 + _controlArea.origin.y;
+        RS_CENTER_X = _controlArea.size.width * .91 + _controlArea.origin.x;
+        RS_CENTER_Y = _controlArea.size.height * .8 + _controlArea.origin.y;
     }
     
-    START_X = _controlArea.size.width * .9 + _controlArea.origin.x;
+    START_X = _controlArea.size.width * .55 + _controlArea.origin.x;
     START_Y = _controlArea.size.height * .9 + _controlArea.origin.y;
-    SELECT_X = _controlArea.size.width * .1 + _controlArea.origin.x;
+    SELECT_X = _controlArea.size.width * .45 + _controlArea.origin.x;
     SELECT_Y = _controlArea.size.height * .9 + _controlArea.origin.y;
     
-    L1_Y = _controlArea.size.height * .27 + _controlArea.origin.y;
-    L2_Y = _controlArea.size.height * .1 + _controlArea.origin.y;
-    R1_Y = _controlArea.size.height * .27 + _controlArea.origin.y;
-    R2_Y = _controlArea.size.height * .1 + _controlArea.origin.y;
+    L1_Y = _controlArea.size.height * .9 + _controlArea.origin.y;
+    L2_Y = _controlArea.size.height * .7 + _controlArea.origin.y;
+    R1_Y = _controlArea.size.height * .9 + _controlArea.origin.y;
+    R2_Y = _controlArea.size.height * .7 + _controlArea.origin.y;
     
     if (_iPad) {
         // Move L/R buttons closer to the side on iPad
@@ -350,10 +370,10 @@ static float L3_Y;
         R2_X = _controlArea.size.width * .95 + _controlArea.origin.x;
     }
     else {
-        L1_X = _controlArea.size.width * .1 + _controlArea.origin.x;
-        L2_X = _controlArea.size.width * .1 + _controlArea.origin.x;
-        R1_X = _controlArea.size.width * .9 + _controlArea.origin.x;
-        R2_X = _controlArea.size.width * .9 + _controlArea.origin.x;
+        L1_X = _controlArea.size.width * .25 + _controlArea.origin.x;
+        L2_X = _controlArea.size.width * .25 + _controlArea.origin.x;
+        R1_X = _controlArea.size.width * .75 + _controlArea.origin.x;
+        R2_X = _controlArea.size.width * .75 + _controlArea.origin.x;
     }
 }
 
@@ -533,14 +553,14 @@ static float L3_Y;
 - (BOOL) handleTouchMovedEvent:touches {
     BOOL updated = false;
     BOOL buttonTouch = false;
-    float rsMaxX = RS_CENTER_X + STICK_OUTER_SIZE / 2;
-    float rsMaxY = RS_CENTER_Y + STICK_OUTER_SIZE / 2;
-    float rsMinX = RS_CENTER_X - STICK_OUTER_SIZE / 2;
-    float rsMinY = RS_CENTER_Y - STICK_OUTER_SIZE / 2;
-    float lsMaxX = LS_CENTER_X + STICK_OUTER_SIZE / 2;
-    float lsMaxY = LS_CENTER_Y + STICK_OUTER_SIZE / 2;
-    float lsMinX = LS_CENTER_X - STICK_OUTER_SIZE / 2;
-    float lsMinY = LS_CENTER_Y - STICK_OUTER_SIZE / 2;
+    float rsMaxX = RS_CENTER_X + STICK_OUTER_SIZE / 1.5;
+    float rsMaxY = RS_CENTER_Y + STICK_OUTER_SIZE / 1.5;
+    float rsMinX = RS_CENTER_X - STICK_OUTER_SIZE / 1.5;
+    float rsMinY = RS_CENTER_Y - STICK_OUTER_SIZE / 1.5;
+    float lsMaxX = LS_CENTER_X + STICK_OUTER_SIZE / 1.5;
+    float lsMaxY = LS_CENTER_Y + STICK_OUTER_SIZE / 1.5;
+    float lsMinX = LS_CENTER_X - STICK_OUTER_SIZE / 1.5;
+    float lsMinY = LS_CENTER_Y - STICK_OUTER_SIZE / 1.5;
     
     for (UITouch* touch in touches) {
         CGPoint touchLocation = [touch locationInView:_view];
