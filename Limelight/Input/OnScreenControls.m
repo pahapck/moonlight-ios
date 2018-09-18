@@ -88,7 +88,7 @@ static float D_PAD_CENTER_Y;
 static const float DEAD_ZONE_PADDING = 1;
 
 static const double STICK_CLICK_RATE = 100;
-static const float STICK_DEAD_ZONE = .1;
+static const float STICK_DEAD_ZONE = .01;
 static float STICK_INNER_SIZE;
 static float STICK_OUTER_SIZE;
 static float LS_CENTER_X;
@@ -178,7 +178,8 @@ static float stickOpacity = 0.2f;
     _selectButton.opacity = opacity;
     _leftStick.opacity = stickOpacity;
     _rightStick.opacity = stickOpacity;
-    
+    _leftStickBackground.opacity = stickOpacity;
+    _rightStickBackground.opacity = stickOpacity;
     [self setupEdgeDetection];
     
     return self;
@@ -240,6 +241,7 @@ static float stickOpacity = 0.2f;
             [self drawBumpers];
             [self drawTriggers];
             [self drawSticks];
+            //[self drawL3R3];
             [self hideL3R3]; // Full controls don't need these they have the sticks
             break;
         default:
@@ -375,6 +377,12 @@ static float stickOpacity = 0.2f;
         R1_X = _controlArea.size.width * .75 + _controlArea.origin.x;
         R2_X = _controlArea.size.width * .75 + _controlArea.origin.x;
     }
+    
+    L3_Y = _controlArea.size.height * .15 + _controlArea.origin.y;
+    R3_Y = _controlArea.size.height * .15 + _controlArea.origin.y;
+    
+    L3_X = _controlArea.size.width * .05 + _controlArea.origin.x;
+    R3_X = _controlArea.size.width * .95 + _controlArea.origin.x;
 }
 
 - (void) drawButtons {
@@ -472,7 +480,8 @@ static float stickOpacity = 0.2f;
 - (void) drawSticks {
     // create left analog stick
     UIImage* leftStickBgImage = [UIImage imageNamed:@"StickOuter"];
-    _leftStickBackground.frame = CGRectMake(LS_CENTER_X - leftStickBgImage.size.width / 2, LS_CENTER_Y - leftStickBgImage.size.height / 2, leftStickBgImage.size.width, leftStickBgImage.size.height);
+    CGFloat width = leftStickBgImage.size.width * 1.5;
+    _leftStickBackground.frame = CGRectMake(LS_CENTER_X - width / 2, LS_CENTER_Y - width / 2, width , width);
     _leftStickBackground.contents = (id) leftStickBgImage.CGImage;
     [_view.layer addSublayer:_leftStickBackground];
     
@@ -483,7 +492,7 @@ static float stickOpacity = 0.2f;
     
     // create right analog stick
     UIImage* rightStickBgImage = [UIImage imageNamed:@"StickOuter"];
-    _rightStickBackground.frame = CGRectMake(RS_CENTER_X - rightStickBgImage.size.width / 2, RS_CENTER_Y - rightStickBgImage.size.height / 2, rightStickBgImage.size.width, rightStickBgImage.size.height);
+    _rightStickBackground.frame = CGRectMake(RS_CENTER_X - width / 2, RS_CENTER_Y - width /2, width, width);
     _rightStickBackground.contents = (id) rightStickBgImage.CGImage;
     [_view.layer addSublayer:_rightStickBackground];
     
@@ -498,16 +507,16 @@ static float stickOpacity = 0.2f;
 
 - (void) drawL3R3 {
     UIImage* l3ButtonImage = [UIImage imageNamed:@"L3"];
-    _l3Button.frame = CGRectMake(L3_X - l3ButtonImage.size.width / 2, L3_Y - l3ButtonImage.size.height / 2, l3ButtonImage.size.width, l3ButtonImage.size.height);
+    _l3Button.frame = CGRectMake(L3_X - l3ButtonImage.size.width / 4, L3_Y - l3ButtonImage.size.height / 4, l3ButtonImage.size.width / 2, l3ButtonImage.size.height / 2);
     _l3Button.contents = (id) l3ButtonImage.CGImage;
-    _l3Button.cornerRadius = l3ButtonImage.size.width / 2;
+    _l3Button.cornerRadius = l3ButtonImage.size.width / 4;
     _l3Button.borderColor = [UIColor colorWithRed:15.f/255 green:160.f/255 blue:40.f/255 alpha:1.f].CGColor;
     [_view.layer addSublayer:_l3Button];
     
     UIImage* r3ButtonImage = [UIImage imageNamed:@"R3"];
-    _r3Button.frame = CGRectMake(R3_X - r3ButtonImage.size.width / 2, R3_Y - r3ButtonImage.size.height / 2, r3ButtonImage.size.width, r3ButtonImage.size.height);
+    _r3Button.frame = CGRectMake(R3_X - r3ButtonImage.size.width / 4, R3_Y - r3ButtonImage.size.height / 4, r3ButtonImage.size.width / 2, r3ButtonImage.size.height / 2);
     _r3Button.contents = (id) r3ButtonImage.CGImage;
-    _r3Button.cornerRadius = r3ButtonImage.size.width / 2;
+    _r3Button.cornerRadius = r3ButtonImage.size.width / 4;
     _r3Button.borderColor = [UIColor colorWithRed:15.f/255 green:160.f/255 blue:40.f/255 alpha:1.f].CGColor;
     [_view.layer addSublayer:_r3Button];
 }
@@ -553,14 +562,15 @@ static float stickOpacity = 0.2f;
 - (BOOL) handleTouchMovedEvent:touches {
     BOOL updated = false;
     BOOL buttonTouch = false;
-    float rsMaxX = RS_CENTER_X + STICK_OUTER_SIZE / 1.5;
-    float rsMaxY = RS_CENTER_Y + STICK_OUTER_SIZE / 1.5;
-    float rsMinX = RS_CENTER_X - STICK_OUTER_SIZE / 1.5;
-    float rsMinY = RS_CENTER_Y - STICK_OUTER_SIZE / 1.5;
-    float lsMaxX = LS_CENTER_X + STICK_OUTER_SIZE / 1.5;
-    float lsMaxY = LS_CENTER_Y + STICK_OUTER_SIZE / 1.5;
-    float lsMinX = LS_CENTER_X - STICK_OUTER_SIZE / 1.5;
-    float lsMinY = LS_CENTER_Y - STICK_OUTER_SIZE / 1.5;
+    float value = 2;
+    float rsMaxX = RS_CENTER_X + STICK_OUTER_SIZE / value;
+    float rsMaxY = RS_CENTER_Y + STICK_OUTER_SIZE / value;
+    float rsMinX = RS_CENTER_X - STICK_OUTER_SIZE / value;
+    float rsMinY = RS_CENTER_Y - STICK_OUTER_SIZE / value;
+    float lsMaxX = LS_CENTER_X + STICK_OUTER_SIZE / value;
+    float lsMaxY = LS_CENTER_Y + STICK_OUTER_SIZE / value;
+    float lsMinX = LS_CENTER_X - STICK_OUTER_SIZE / value;
+    float lsMinY = LS_CENTER_Y - STICK_OUTER_SIZE / value;
     
     for (UITouch* touch in touches) {
         CGPoint touchLocation = [touch locationInView:_view];
@@ -577,8 +587,9 @@ static float stickOpacity = 0.2f;
             float xStickVal = (xLoc - LS_CENTER_X) / (lsMaxX - LS_CENTER_X);
             float yStickVal = (yLoc - LS_CENTER_Y) / (lsMaxY - LS_CENTER_Y);
             
-            if (fabsf(xStickVal) < STICK_DEAD_ZONE) xStickVal = 0;
-            if (fabsf(yStickVal) < STICK_DEAD_ZONE) yStickVal = 0;
+           // NSLog(@"test %f", xStickVal);
+            //if (fabsf(xStickVal) < STICK_DEAD_ZONE) xStickVal = 0;
+           // if (fabsf(yStickVal) < STICK_DEAD_ZONE) yStickVal = 0;
             
             [_controllerSupport updateLeftStick:_controller x:0x7FFE * xStickVal y:0x7FFE * -yStickVal];
             
@@ -594,8 +605,8 @@ static float stickOpacity = 0.2f;
             float xStickVal = (xLoc - RS_CENTER_X) / (rsMaxX - RS_CENTER_X);
             float yStickVal = (yLoc - RS_CENTER_Y) / (rsMaxY - RS_CENTER_Y);
             
-            if (fabsf(xStickVal) < STICK_DEAD_ZONE) xStickVal = 0;
-            if (fabsf(yStickVal) < STICK_DEAD_ZONE) yStickVal = 0;
+//            if (fabsf(xStickVal) < STICK_DEAD_ZONE) xStickVal = 0;
+//            if (fabsf(yStickVal) < STICK_DEAD_ZONE) yStickVal = 0;
             
             [_controllerSupport updateRightStick:_controller x:0x7FFE * xStickVal y:0x7FFE * -yStickVal];
             
@@ -718,28 +729,28 @@ static float stickOpacity = 0.2f;
             _r2Touch = touch;
             updated = true;
         } else if ([_l3Button.presentationLayer hitTest:touchLocation]) {
-            if (l3Set) {
-                [_controllerSupport clearButtonFlag:_controller flags:LS_CLK_FLAG];
-                _l3Button.borderWidth = 0.0f;
-            } else {
+//            if (l3Set) {
+//                [_controllerSupport clearButtonFlag:_controller flags:LS_CLK_FLAG];
+//                _l3Button.borderWidth = 0.0f;
+//            } else {
                 [_controllerSupport setButtonFlag:_controller flags:LS_CLK_FLAG];
-                _l3Button.borderWidth = 2.0f;
-            }
-            l3Set = !l3Set;
+//                _l3Button.borderWidth = 2.0f;
+//            }
+//            l3Set = !l3Set;
             _l3Touch = touch;
             updated = true;
         } else if ([_r3Button.presentationLayer hitTest:touchLocation]) {
-            if (r3Set) {
-                [_controllerSupport clearButtonFlag:_controller flags:RS_CLK_FLAG];
-                _r3Button.borderWidth = 0.0f;
-            } else {
+//            if (r3Set) {
+//                [_controllerSupport clearButtonFlag:_controller flags:RS_CLK_FLAG];
+//                _r3Button.borderWidth = 0.0f;
+//            } else {
                 [_controllerSupport setButtonFlag:_controller flags:RS_CLK_FLAG];
-                _r3Button.borderWidth = 2.0f;
-            }
-            r3Set = !r3Set;
+//                _r3Button.borderWidth = 2.0f;
+//            }
+//            r3Set = !r3Set;
             _r3Touch = touch;
             updated = true;
-        } else if ([_leftStick.presentationLayer hitTest:touchLocation]) {
+        } else if ([_leftStickBackground.presentationLayer hitTest:touchLocation]) {
             if (l3TouchStart != nil) {
                 // Find elapsed time and convert to milliseconds
                 // Use (-) modifier to conversion since receiver is earlier than now
@@ -751,7 +762,7 @@ static float stickOpacity = 0.2f;
             }
             _lsTouch = touch;
             stickTouch = true;
-        } else if ([_rightStick.presentationLayer hitTest:touchLocation]) {
+        } else if ([_rightStickBackground.presentationLayer hitTest:touchLocation]) {
             if (r3TouchStart != nil) {
                 // Find elapsed time and convert to milliseconds
                 // Use (-) modifier to conversion since receiver is earlier than now
@@ -963,6 +974,7 @@ static float stickOpacity = 0.2f;
 }
 
 - (BOOL) isStickDeadZone:(UITouch*) touch {
+    
     return [self isDeadZone:touch
                      startX:_leftStickBackground.frame.origin.x - 15
                      startY:_leftStickBackground.frame.origin.y - 15
