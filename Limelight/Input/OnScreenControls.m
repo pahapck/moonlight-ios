@@ -226,12 +226,12 @@ static float stickOpacity = 0.2f;
         case OnScreenControlsLevelSimple:
             [self setupSimpleControls];
             
-            [self hideTriggers];
-            [self hideL3R3];
-            [self hideBumpers];
-            [self hideSticks];
-            [self drawStartSelect];
             [self drawButtons];
+            [self drawStartSelect];
+            [self drawBumpers];
+            [self drawTriggers];
+            [self drawSticks];
+            [self hideL3R3];
             break;
         case OnScreenControlsLevelFull:
             [self setupComplexControls];
@@ -241,7 +241,6 @@ static float stickOpacity = 0.2f;
             [self drawBumpers];
             [self drawTriggers];
             [self drawSticks];
-            //[self drawL3R3];
             [self hideL3R3]; // Full controls don't need these they have the sticks
             break;
         default:
@@ -307,28 +306,10 @@ static float stickOpacity = 0.2f;
     // Start with the default complex layout
     [self setupComplexControls];
     
-    START_Y = _controlArea.size.height * .9 + _controlArea.origin.y;
-    SELECT_Y = _controlArea.size.height * .9 + _controlArea.origin.y;
-    
-    L2_Y = _controlArea.size.height * .9 + _controlArea.origin.y;
-    L2_X = _controlArea.size.width * .1 + _controlArea.origin.x;
-
-    R2_Y = _controlArea.size.height * .9 + _controlArea.origin.y;
-    R2_X = _controlArea.size.width * .9 + _controlArea.origin.x;
-    
-    if (_iPad) {
-        // Lower the D-pad and buttons on iPad
-        D_PAD_CENTER_Y = _controlArea.size.height * .75 + _controlArea.origin.y;
-        BUTTON_CENTER_Y = _controlArea.size.height * .75 + _controlArea.origin.y;
-        
-        // Move Start and Select closer to sides
-        SELECT_X = _controlArea.size.width * .2 + _controlArea.origin.x;
-        START_X = _controlArea.size.width * .8 + _controlArea.origin.x;
-    }
-    else {
-        SELECT_X = _controlArea.size.width * .4 + _controlArea.origin.x;
-        START_X = _controlArea.size.width * .6 + _controlArea.origin.x;
-    }
+    L1_Y = _controlArea.size.height * .1 + _controlArea.origin.y;
+    L2_Y = _controlArea.size.height * .1 + _controlArea.origin.y;
+    L1_X = _controlArea.size.width * .999 + _controlArea.origin.x;
+    L2_X = _controlArea.size.width * .001 + _controlArea.origin.x;
 }
 
 - (void) setupComplexControls
@@ -587,9 +568,26 @@ static float stickOpacity = 0.2f;
             float xStickVal = (xLoc - LS_CENTER_X) / (lsMaxX - LS_CENTER_X);
             float yStickVal = (yLoc - LS_CENTER_Y) / (lsMaxY - LS_CENTER_Y);
             
-           // NSLog(@"test %f", xStickVal);
+   
             //if (fabsf(xStickVal) < STICK_DEAD_ZONE) xStickVal = 0;
            // if (fabsf(yStickVal) < STICK_DEAD_ZONE) yStickVal = 0;
+            float dead_zone = 0.01;
+            
+            if (fabsf(xStickVal) < 0.3) {
+                if (xStickVal > dead_zone) {
+                    xStickVal = 0.3;
+                } else if(xStickVal < -dead_zone) {
+                    xStickVal = -0.3;
+                }
+            }
+            if (fabsf(yStickVal) < 0.3) {
+                if (yStickVal > dead_zone) {
+                    yStickVal = 0.3;
+                } else if(xStickVal < -dead_zone) {
+                    yStickVal = -0.3;
+                }
+            }
+            
             
             [_controllerSupport updateLeftStick:_controller x:0x7FFE * xStickVal y:0x7FFE * -yStickVal];
             
@@ -605,6 +603,25 @@ static float stickOpacity = 0.2f;
             float xStickVal = (xLoc - RS_CENTER_X) / (rsMaxX - RS_CENTER_X);
             float yStickVal = (yLoc - RS_CENTER_Y) / (rsMaxY - RS_CENTER_Y);
             
+            float dead_zone = 0.01;
+            
+            if (fabsf(xStickVal) < 0.3) {
+                if (xStickVal > dead_zone) {
+                    xStickVal = 0.3;
+                } else if(xStickVal < -dead_zone) {
+                    xStickVal = -0.3;
+                }
+            }
+            if (fabsf(yStickVal) < 0.3) {
+                if (yStickVal > dead_zone) {
+                    yStickVal = 0.3;
+                } else if(xStickVal < -dead_zone) {
+                    yStickVal = -0.3;
+                }
+            }
+            
+//            NSLog(@"test1 %f", xStickVal);
+//            NSLog(@"test2 %f", yStickVal);
 //            if (fabsf(xStickVal) < STICK_DEAD_ZONE) xStickVal = 0;
 //            if (fabsf(yStickVal) < STICK_DEAD_ZONE) yStickVal = 0;
             
